@@ -15,12 +15,12 @@ from harlequin import (
 from harlequin.autocomplete.completion import HarlequinCompletion
 from harlequin.catalog import Catalog, CatalogItem, InteractiveCatalogItem
 from harlequin.exception import HarlequinConnectionError, HarlequinQueryError
+from pyathena import connect
+from pyathena.connection import Connection
 from textual_fastdatatable.backend import AutoBackendType
 
 from harlequin_athena.cli_options import ATHENA_OPTIONS
 from harlequin_athena.completions import load_completions
-from pyathena import connect
-from pyathena.connection import Connection
 
 
 def _get_cache_dir() -> Path | None:
@@ -85,7 +85,11 @@ class HarlequinAthenaCursor(HarlequinCursor):
 
     def columns(self) -> list[tuple[str, str]]:
         # Use preserved description since cursor may be closed
-        description = self._description if self._description is not None else self.cur.description
+        description = (
+            self._description
+            if self._description is not None
+            else self.cur.description
+        )
         # Some queries (like DDL) don't return a result set, so description can be None
         if description is None:
             return []
@@ -293,7 +297,8 @@ class HarlequinAthenaConnection(HarlequinConnection):
         conn_params: dict[str, Any] = {
             "s3_staging_dir": s3_staging_dir,
             "region_name": region,
-            "poll_interval": poll_interval,  # Polling interval in seconds for query status checks
+            # Polling interval in seconds for query status checks
+            "poll_interval": poll_interval,
         }
         
         if work_group:
@@ -430,7 +435,7 @@ class HarlequinAthenaConnection(HarlequinConnection):
             pass
 
     def invalidate_catalog_cache(self) -> None:
-        """Invalidate the cached catalog to force a refresh on next get_catalog() call."""
+        """Invalidate the cached catalog to force a refresh on next get_catalog() call."""  # noqa: E501
         self._catalog_cache = None
 
     def _get_catalogs(self) -> list[tuple[str]]:
@@ -469,7 +474,9 @@ class HarlequinAthenaConnection(HarlequinConnection):
         
         cur = self.conn.cursor()
         # Build IN clause for schemas, escaping single quotes
-        schema_list = ", ".join(f"'{s.replace(chr(39), chr(39)+chr(39))}'" for s in schemas)
+        schema_list = ", ".join(
+            f"'{s.replace(chr(39), chr(39)+chr(39))}'" for s in schemas
+        )
         query = f"""
             SELECT
                 table_schema,
@@ -504,7 +511,8 @@ class HarlequinAthenaConnection(HarlequinConnection):
     ) -> dict[tuple[str, str], list[tuple[str, str]]]:
         """
         Batch fetch all columns for all tables across all schemas.
-        Returns a dict mapping (schema, table) to list of (column_name, data_type) tuples.
+        Returns a dict mapping (schema, table) to list of
+        (column_name, data_type) tuples.
         """
         if not relations_by_schema:
             return {}
@@ -517,7 +525,8 @@ class HarlequinAthenaConnection(HarlequinConnection):
                 schema_escaped = schema.replace("'", "''")
                 table_escaped = table_name.replace("'", "''")
                 conditions.append(
-                    f"(table_schema = '{schema_escaped}' AND table_name = '{table_escaped}')"
+                    f"(table_schema = '{schema_escaped}' "
+                    f"AND table_name = '{table_escaped}')"
                 )
         
         if not conditions:

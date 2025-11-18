@@ -1,4 +1,3 @@
-import os
 import sys
 from typing import Generator
 
@@ -122,6 +121,8 @@ def test_execute_raises_query_error(connection: HarlequinAthenaConnection) -> No
 @pytest.mark.no_aws  # This test doesn't require AWS credentials
 def test_missing_s3_staging_dir() -> None:
     """Test that missing s3_staging_dir raises an error"""
-    with pytest.raises(Exception):  # HarlequinConnectionError
+    from harlequin.exception import HarlequinConnectionError
+
+    with pytest.raises(HarlequinConnectionError):
         HarlequinAthenaAdapter(region="us-east-1").connect()
 

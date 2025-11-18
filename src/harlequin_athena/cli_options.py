@@ -91,7 +91,10 @@ profile_name = TextOption(
 
 poll_interval = TextOption(
     name="poll_interval",
-    description=("Polling interval in seconds for checking query status (default: 0.5, lower = faster polling)"),
+    description=(
+        "Polling interval in seconds for checking query status "
+        "(default: 0.5, lower = faster polling)"
+    ),
     short_decls=["--poll-interval"],
     default="0.5",
     validator=_float_validator,
