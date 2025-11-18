@@ -21,6 +21,19 @@ Publishes the package to PyPI. Triggers:
 
 ## Setup for Publishing
 
+### 0. Create GitHub Environment (Optional but Recommended)
+
+1. Go to your repository on GitHub
+2. Navigate to **Settings** → **Environments**
+3. Click **New environment**
+4. Name it `pypi`
+5. (Optional) Add protection rules:
+   - **Required reviewers**: Require approval before publishing
+   - **Wait timer**: Add a delay before deployment
+   - **Deployment branches**: Restrict to specific branches
+
+This adds an extra layer of security and control over PyPI publishing.
+
 ### 1. Create PyPI API Tokens
 
 **Option A: API Token (Simpler)**
