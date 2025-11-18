@@ -617,17 +617,21 @@ class HarlequinAthenaAdapter(HarlequinAdapter):
         poll_interval: str | None = None,
         **_: Any,
     ) -> None:
+        # Support environment variables as fallback when CLI options are not provided
+        # Only for adapter-specific options not covered by standard AWS SDK environment variables
+        # AWS SDK automatically handles: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, AWS_SESSION_TOKEN,
+        # AWS_REGION/AWS_DEFAULT_REGION, AWS_PROFILE
         self.options = {
-            "region": region,
-            "s3_staging_dir": s3_staging_dir,
-            "work_group": work_group,
-            "schema": schema,
-            "catalog": catalog,
-            "aws_access_key_id": aws_access_key_id,
-            "aws_secret_access_key": aws_secret_access_key,
-            "aws_session_token": aws_session_token,
-            "profile_name": profile_name,
-            "poll_interval": poll_interval,
+            "region": region,  # AWS SDK handles AWS_REGION/AWS_DEFAULT_REGION automatically
+            "s3_staging_dir": s3_staging_dir or os.getenv("HARLEQUIN_ATHENA_S3_STAGING_DIR"),
+            "work_group": work_group or os.getenv("HARLEQUIN_ATHENA_WORK_GROUP"),
+            "schema": schema or os.getenv("HARLEQUIN_ATHENA_SCHEMA"),
+            "catalog": catalog or os.getenv("HARLEQUIN_ATHENA_CATALOG"),
+            "aws_access_key_id": aws_access_key_id,  # AWS SDK handles AWS_ACCESS_KEY_ID automatically
+            "aws_secret_access_key": aws_secret_access_key,  # AWS SDK handles AWS_SECRET_ACCESS_KEY automatically
+            "aws_session_token": aws_session_token,  # AWS SDK handles AWS_SESSION_TOKEN automatically
+            "profile_name": profile_name,  # AWS SDK handles AWS_PROFILE automatically
+            "poll_interval": poll_interval or os.getenv("HARLEQUIN_ATHENA_POLL_INTERVAL"),
         }
 
     def connect(self) -> HarlequinAthenaConnection:

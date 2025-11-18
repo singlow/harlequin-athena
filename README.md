@@ -58,6 +58,36 @@ For a minimum connection you are going to need:
 harlequin -a athena -s s3://my-bucket/athena-results/ -r us-east-1
 ```
 
+### Environment Variables
+
+Adapter-specific options can be configured via environment variables. Environment variables are used as fallbacks when CLI options are not provided. The environment variable names follow the pattern `HARLEQUIN_ATHENA_<OPTION_NAME>` (uppercase with underscores):
+
+- `HARLEQUIN_ATHENA_S3_STAGING_DIR`: S3 staging directory (required)
+- `HARLEQUIN_ATHENA_WORK_GROUP`: Athena work group
+- `HARLEQUIN_ATHENA_SCHEMA`: Default schema (database)
+- `HARLEQUIN_ATHENA_CATALOG`: Catalog name
+- `HARLEQUIN_ATHENA_POLL_INTERVAL`: Polling interval in seconds
+
+**Note:** AWS credentials and region can be configured using standard AWS SDK environment variables (automatically handled by boto3/pyathena):
+- `AWS_ACCESS_KEY_ID`: AWS access key ID
+- `AWS_SECRET_ACCESS_KEY`: AWS secret access key
+- `AWS_SESSION_TOKEN`: AWS session token (for temporary credentials)
+- `AWS_REGION` or `AWS_DEFAULT_REGION`: AWS region
+- `AWS_PROFILE`: AWS profile name
+
+Example using environment variables:
+```bash
+# Standard AWS SDK environment variables
+export AWS_REGION="us-east-1"
+export AWS_PROFILE="my-profile"
+
+# Adapter-specific environment variables
+export HARLEQUIN_ATHENA_S3_STAGING_DIR="s3://my-bucket/athena-results/"
+export HARLEQUIN_ATHENA_WORK_GROUP="my-workgroup"
+
+harlequin -a athena
+```
+
 ### AWS Credentials
 
 The adapter supports multiple methods for AWS authentication:
