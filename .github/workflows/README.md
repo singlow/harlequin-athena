@@ -47,7 +47,7 @@ This adds an extra layer of security and control over PyPI publishing.
 3. Owner: Your PyPI username
 4. Project name: `harlequin-athena`
 5. Workflow filename: `.github/workflows/publish.yml`
-6. Environment name: (leave empty or use `release`)
+6. Environment name: `pypi` (must match the environment in the workflow)
 7. After adding, approve the publisher from the pending list
 
 If using trusted publishing, you don't need to add the `PYPI_API_TOKEN` secret - the workflow will use OIDC authentication automatically.
@@ -58,13 +58,15 @@ If using trusted publishing, you don't need to add the `PYPI_API_TOKEN` secret -
 2. Create a new API token
 3. Copy the token
 
-### 3. Add Secrets to GitHub
+### 3. Add Secrets to GitHub Environment
 
 1. Go to your repository on GitHub
-2. Navigate to **Settings** → **Secrets and variables** → **Actions**
-3. Add the following secrets:
-   - `PYPI_API_TOKEN`: Your PyPI API token
+2. Navigate to **Settings** → **Environments** → **pypi**
+3. Add the following secrets to the `pypi` environment:
+   - `PYPI_API_TOKEN`: Your PyPI API token (if not using trusted publishing)
    - `TEST_PYPI_API_TOKEN`: Your TestPyPI API token (optional)
+
+**Note**: If you're using trusted publishing (Option B above), you don't need to add `PYPI_API_TOKEN` - the workflow will use OIDC authentication automatically.
 
 ## Publishing a Release
 
