@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "harlequin-athena"
-version = "0.1.1"
+version = "0.1.2"
 description = "A Harlequin adapter for Amazon Athena."
 authors = ["Jacob Williams <jacob@iakob.com>"]
 homepage = "https://harlequin.sh"
