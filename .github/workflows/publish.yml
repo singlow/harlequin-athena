@@ -1,0 +1,92 @@
+name: Publish to PyPI
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish (e.g., 0.1.0)'
+        required: true
+        type: string
+      publish_to_testpypi:
+        description: 'Publish to TestPyPI first'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write  # Required for trusted publishing
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+          installer-parallel: true
+
+      - name: Set up Python version for cache
+        id: python-version
+        run: echo "version=3.12" >> $GITHUB_OUTPUT
+
+      - name: Load cached venv
+        id: cached-poetry-dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ steps.python-version.outputs.version }}-${{ hashFiles('**/poetry.lock') }}
+
+      - name: Install dependencies
+        run: poetry install --no-interaction --no-root
+
+      - name: Check version matches
+        if: github.event_name == 'release'
+        run: |
+          RELEASE_VERSION="${{ github.event.release.tag_name }}"
+          # Remove 'v' prefix if present
+          RELEASE_VERSION=${RELEASE_VERSION#v}
+          PYPROJECT_VERSION=$(poetry version --short)
+          if [ "$RELEASE_VERSION" != "$PYPROJECT_VERSION" ]; then
+            echo "Error: Release version ($RELEASE_VERSION) doesn't match pyproject.toml version ($PYPROJECT_VERSION)"
+            exit 1
+          fi
+
+      - name: Update version (manual trigger)
+        if: github.event_name == 'workflow_dispatch'
+        run: |
+          poetry version "${{ github.event.inputs.version }}"
+
+      - name: Build package
+        run: poetry build
+
+      - name: Publish to TestPyPI
+        if: |
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_testpypi == 'true') ||
+          (github.event_name == 'release' && github.event.release.prerelease == true)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/simple/
+          password: ${{ secrets.TEST_PYPI_API_TOKEN }}
+
+      - name: Publish to PyPI
+        if: |
+          (github.event_name == 'workflow_dispatch' && github.event.inputs.publish_to_testpypi == 'false') ||
+          (github.event_name == 'release' && github.event.release.prerelease == false)
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          password: ${{ secrets.PYPI_API_TOKEN }}
+

@@ -84,6 +84,7 @@ The adapter supports multiple methods for AWS authentication:
 - `--work-group` or `-w`: Athena work group to use
 - `--schema` or `-d` or `--database`: Default schema (database) to use
 - `--catalog` or `-c`: Catalog name (default: AwsDataCatalog)
+- `--poll-interval`: Polling interval in seconds for checking query status (default: 0.5, lower = faster polling)
 
 Example with all options:
 ```bash

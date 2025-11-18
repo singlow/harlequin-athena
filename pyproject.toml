@@ -1,12 +1,25 @@
 [tool.poetry]
-name = "harlequin_athena"
+name = "harlequin-athena"
 version = "0.1.0"
 description = "A Harlequin adapter for Amazon Athena."
-authors = ["Your Name <your.email@example.com>"]
+authors = ["Jacob Williams <jacob@iakob.com>"]
 homepage = "https://harlequin.sh"
-repository = "https://github.com/yourusername/harlequin-athena"
+repository = "https://github.com/singlow/harlequin-athena"
+documentation = "https://github.com/singlow/harlequin-athena"
 license = "MIT"
 readme = "README.md"
+keywords = ["harlequin", "athena", "aws", "sql", "database", "adapter"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Database",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+]
 packages = [
     { include = "harlequin_athena", from = "src" },
 ]
