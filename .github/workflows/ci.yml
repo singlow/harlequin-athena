@@ -46,10 +46,15 @@ jobs:
       - name: Run type checking
         run: poetry run mypy src/ tests/ || true  # Allow failures for now
 
-      - name: Run tests
-        run: poetry run pytest
+      - name: Run tests (without AWS credentials)
+        run: poetry run pytest -m "no_aws" -v
+
+      - name: Run tests (with AWS credentials) - skipped in CI
+        if: false  # Skip AWS-dependent tests in CI
+        run: poetry run pytest -m "aws_required" -v
         env:
-          # Add any test environment variables here
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           AWS_REGION: us-east-1
 
   build:

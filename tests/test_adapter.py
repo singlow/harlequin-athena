@@ -1,3 +1,4 @@
+import os
 import sys
 from typing import Generator
 
@@ -13,6 +14,9 @@ if sys.version_info < (3, 10):
 else:
     from importlib.metadata import entry_points
 
+# Note: Tests marked with @pytest.mark.aws_required need AWS credentials
+# Tests marked with @pytest.mark.no_aws can run without credentials
+
 
 @pytest.fixture
 def athena_options() -> dict:
@@ -23,6 +27,7 @@ def athena_options() -> dict:
     }
 
 
+@pytest.mark.no_aws  # This test doesn't require AWS credentials
 def test_plugin_discovery() -> None:
     PLUGIN_NAME = "athena"
     eps = entry_points(group="harlequin.adapter")
@@ -32,11 +37,13 @@ def test_plugin_discovery() -> None:
     assert adapter_cls == HarlequinAthenaAdapter
 
 
+@pytest.mark.aws_required
 def test_connect(athena_options: dict) -> None:
     conn = HarlequinAthenaAdapter(**athena_options).connect()
     assert isinstance(conn, HarlequinConnection)
 
 
+@pytest.mark.aws_required
 def test_init_extra_kwargs(athena_options: dict) -> None:
     assert HarlequinAthenaAdapter(**athena_options, foo=1, bar="baz").connect()
 
@@ -51,6 +58,7 @@ def connection(
     yield conn
 
 
+@pytest.mark.aws_required
 def test_get_catalog(connection: HarlequinAthenaConnection) -> None:
     catalog = connection.get_catalog()
     assert isinstance(catalog, Catalog)
@@ -58,6 +66,7 @@ def test_get_catalog(connection: HarlequinAthenaConnection) -> None:
     assert isinstance(catalog.items[0], CatalogItem)
 
 
+@pytest.mark.aws_required
 def test_execute_ddl(connection: HarlequinAthenaConnection) -> None:
     # Note: Athena DDL operations may require specific permissions
     # This test may need to be adjusted based on your test environment
@@ -68,6 +77,7 @@ def test_execute_ddl(connection: HarlequinAthenaConnection) -> None:
     assert data is not None
 
 
+@pytest.mark.aws_required
 def test_execute_select(connection: HarlequinAthenaConnection) -> None:
     cur = connection.execute("SELECT 1 AS a")
     assert isinstance(cur, HarlequinCursor)
@@ -78,6 +88,7 @@ def test_execute_select(connection: HarlequinAthenaConnection) -> None:
     assert backend.row_count == 1
 
 
+@pytest.mark.aws_required
 def test_execute_select_dupe_cols(connection: HarlequinAthenaConnection) -> None:
     cur = connection.execute("SELECT 1 AS a, 2 AS a, 3 AS a")
     assert isinstance(cur, HarlequinCursor)
@@ -88,6 +99,7 @@ def test_execute_select_dupe_cols(connection: HarlequinAthenaConnection) -> None
     assert backend.row_count == 1
 
 
+@pytest.mark.aws_required
 def test_set_limit(connection: HarlequinAthenaConnection) -> None:
     cur = connection.execute(
         "SELECT 1 AS a UNION ALL SELECT 2 UNION ALL SELECT 3"
@@ -101,11 +113,13 @@ def test_set_limit(connection: HarlequinAthenaConnection) -> None:
     assert backend.row_count == 2
 
 
+@pytest.mark.aws_required
 def test_execute_raises_query_error(connection: HarlequinAthenaConnection) -> None:
     with pytest.raises(HarlequinQueryError):
         _ = connection.execute("selec;")
 
 
+@pytest.mark.no_aws  # This test doesn't require AWS credentials
 def test_missing_s3_staging_dir() -> None:
     """Test that missing s3_staging_dir raises an error"""
     with pytest.raises(Exception):  # HarlequinConnectionError

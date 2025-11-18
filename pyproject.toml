@@ -85,3 +85,9 @@ strict_equality = true
 module = ["pyathena", "pyathena.dbapi"]
 ignore_missing_imports = true
 
+[tool.pytest.ini_options]
+markers = [
+    "aws_required: marks tests as requiring AWS credentials (deselect with '-m \"not aws_required\"')",
+    "no_aws: marks tests that can run without AWS credentials (deselect with '-m \"no_aws\"')",
+]
+
